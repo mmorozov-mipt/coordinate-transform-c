@@ -1,0 +1,42 @@
+Algorithm: Affine coordinate transform (local x,y -> global lon,lat)
+
+Goal
+Compute affine transform parameters that map local coordinates (x,y) into
+global geographic coordinates (lon,lat) using reference points.
+
+Model
+lon = a11*x + a12*y + b1
+lat = a21*x + a22*y + b2
+
+Input
+Four reference points:
+(x_i, y_i) <-> (lon_i, lat_i), i = 1..4
+
+Method
+We estimate parameters separately for lon and lat by least squares.
+
+For lon we solve:
+min Σ (lon_i - (a11*x_i + a12*y_i + b1))^2
+
+For lat we solve:
+min Σ (lat_i - (a21*x_i + a22*y_i + b2))^2
+
+Normal equations
+Let design vector be [x_i, y_i, 1].
+
+A = Σ [ [x_i^2, x_i*y_i, x_i],
+        [x_i*y_i, y_i^2, y_i],
+        [x_i,     y_i,   1 ] ]
+
+B_lon = Σ [x_i*lon_i, y_i*lon_i, lon_i]
+B_lat = Σ [x_i*lat_i, y_i*lat_i, lat_i]
+
+Solve linear systems:
+A * [a11, a12, b1]^T = B_lon
+A * [a21, a22, b2]^T = B_lat
+
+Solver
+Gaussian elimination with pivot check.
+
+Output
+Affine parameters for coordinate transformation.
